@@ -2,8 +2,5 @@ name = "toolvision"
 compatibility_date = "2024-05-02"
 compatibility_flags = [ "nodejs_compat" ]
 
-# 核心：显式指定本地打包输出目录
-# 如果你的项目使用的是 next-on-pages 架构，产物会在 .open-next 中；
-# 如果是一般的 Next.js 原生静态导出或 Cloudflare 混合构建，产物会在 .next 目录中。
-# 如果不确定，保持留空让 wrangler 在运行命令时自动猜测，或者配合你的框架使用：
-pages_build_output_dir = ".next"
+# 核心修改：精准指向静态网站输出目录，这样就会直接跳过 cache 目录
+pages_build_output_dir = ".next/standalone"
