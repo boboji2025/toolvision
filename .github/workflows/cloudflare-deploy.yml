@@ -33,7 +33,7 @@ jobs:
           cache: 'pnpm'
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --no-frozen-lockfile
 
       - name: Build Next.js Application
         run: pnpm build
@@ -41,6 +41,9 @@ jobs:
           BUILD_TARGET: cloudflare
           NODE_ENV: production
           NEXT_PUBLIC_TMDB_API_KEY: ${{ secrets.NEXT_PUBLIC_TMDB_API_KEY }}
+          NEXT_PUBLIC_STORAGE_TYPE: d1
+          USERNAME: admin
+          PASSWORD: your_secure_password
 
       - name: Publish to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
