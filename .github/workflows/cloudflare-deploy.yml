@@ -43,7 +43,8 @@ jobs:
           NEXT_PUBLIC_TMDB_API_KEY: ${{ secrets.NEXT_PUBLIC_TMDB_API_KEY }}
 
       - name: Publish to Cloudflare Pages
-        run: pnpm wrangler pages deploy .open-next --project-name=toolvision
+        # 统一由 wrangler 自动读取并定位当前编译输出的最佳目录进行上传
+        run: pnpm wrangler pages deploy --project-name=toolvision
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
