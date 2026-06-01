@@ -3,4 +3,4 @@ compatibility_date = "2024-05-02"
 compatibility_flags = [ "nodejs_compat" ]
 
 # 核心修改：精准指向静态网站输出目录，这样就会直接跳过 cache 目录
-pages_build_output_dir = ".next/standalone"
+pages_build_output_dir = ".next"
