@@ -45,7 +45,7 @@ jobs:
             exit 1
           fi
 
-      - name: Build Next.js Application with Open-Next
+      - name: Build and Package with Open-Next
         run: pnpm build
         env:
           BUILD_TARGET: cloudflare
@@ -55,9 +55,8 @@ jobs:
           USERNAME: ${{ secrets.USERNAME }}
           PASSWORD: ${{ secrets.PASSWORD }}
 
-      - name: Publish to Cloudflare Pages
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy .open-next/assets --project-name=toolvision
+      - name: Deploy Full-Stack App to Cloudflare Pages
+        run: pnpm wrangler pages deploy .open-next/assets --project-name=toolvision
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
