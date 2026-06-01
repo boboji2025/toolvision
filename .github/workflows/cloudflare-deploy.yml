@@ -49,9 +49,8 @@ jobs:
           NEXT_PUBLIC_TMDB_API_KEY: ${{ secrets.NEXT_PUBLIC_TMDB_API_KEY }}
 
       - name: Publish to Cloudflare Pages
-        # 💡 核心修改：移除复杂的本地路径依赖。全栈项目在使用专属命令构建后，
-        # 直接使用 wrangler pages deploy 加上 --build-output-dir 参数，或者交由 wrangler 自动寻找托管
-        run: pnpm wrangler pages deploy --project-name=toolvision
+        # 💡 核心修改：明确指定部署 .open-next 目录
+        run: pnpm wrangler pages deploy .open-next --project-name=toolvision
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
