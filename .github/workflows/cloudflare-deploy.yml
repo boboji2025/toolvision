@@ -36,18 +36,22 @@ jobs:
         run: pnpm install --no-frozen-lockfile
 
       - name: Build Next.js Fullstack Application
-        # 💡 核心修改：利用 Cloudflare 官方的次世代转换器，强行把 .next 里的全栈架构转换成 Pages 路由和边缘函数
+        # 💡 核心修改：利用 pnpm 自动分析 package.json，如果存在 build:cloudflare 就执行它，否则执行标准构建
         run: |
-          pnpm build
-          npx @cloudflare/next-on-pages --skip-build
+          if pnpm run | grep -q "build:cloudflare"; then
+            pnpm build:cloudflare
+          else
+            pnpm build
+          fi
         env:
           BUILD_TARGET: cloudflare
           NODE_ENV: production
           NEXT_PUBLIC_TMDB_API_KEY: ${{ secrets.NEXT_PUBLIC_TMDB_API_KEY }}
 
       - name: Publish to Cloudflare Pages
-        # 💡 核心修改：转换后，全栈的输出目录 100% 位于 .vercel/output/static
-        run: pnpm wrangler pages deploy .vercel/output/static --project-name=toolvision
+        # 💡 核心修改：移除复杂的本地路径依赖。全栈项目在使用专属命令构建后，
+        # 直接使用 wrangler pages deploy 加上 --build-output-dir 参数，或者交由 wrangler 自动寻找托管
+        run: pnpm wrangler pages deploy --project-name=toolvision
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
