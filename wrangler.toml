@@ -2,5 +2,5 @@ name = "toolvision"
 compatibility_date = "2024-05-02"
 compatibility_flags = [ "nodejs_compat" ]
 
-# 核心：由于是全栈 Open-Next 项目，路径必须指向 .open-next 
-pages_build_output_dir = ".open-next"
+# 必须改为静态转换输出目录
+pages_build_output_dir = ".vercel/output/static"
