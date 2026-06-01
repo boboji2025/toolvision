@@ -32,17 +32,31 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Install OpenNext Cloudflare plugin
+        run: pnpm add -D @opennextjs/cloudflare
+
       - name: Configure D1 Database in wrangler.toml
         run: |
           STORAGE_TYPE="${{ secrets.NEXT_PUBLIC_STORAGE_TYPE }}"
-          if [ "$STORAGE_TYPE" != "d1" ]; then
-            sed -i '/^# D1 数据库绑定$/,/^database_id = .*$/d' wrangler.toml
-            sed -i '/^\[\[d1_databases\]\]$/,/^$/{ /^\[\[d1_databases\]\]$/d; /^binding = /d; /^database_name = /d; /^database_id = /d; }' wrangler.toml
-          elif [ -n "${{ secrets.D1_DATABASE_ID }}" ]; then
-            sed -i 's/REPLACE_WITH_YOUR_D1_DATABASE_ID/${{ secrets.D1_DATABASE_ID }}/g' wrangler.toml
+          
+          # 检查 wrangler.toml 是否存在
+          if [ ! -f "wrangler.toml" ]; then
+            echo "⚠️ wrangler.toml not found, skipping D1 configuration"
+            exit 0
+          fi
+          
+          if [ "$STORAGE_TYPE" = "d1" ]; then
+            if [ -z "${{ secrets.D1_DATABASE_ID }}" ]; then
+              echo "❌ Error: Storage type is 'd1' but D1_DATABASE_ID secret is not set"
+              exit 1
+            fi
+            echo "✓ Configuring D1 database with ID: ${{ secrets.D1_DATABASE_ID }}"
+            # 替换数据库 ID
+            sed -i "s/REPLACE_WITH_YOUR_D1_DATABASE_ID/${{ secrets.D1_DATABASE_ID }}/g" wrangler.toml
           else
-            echo "⚠️ Storage type is d1 but D1_DATABASE_ID secret not set"
-            exit 1
+            echo "✓ D1 database not required (STORAGE_TYPE=$STORAGE_TYPE), disabling D1 configuration"
+            # 注释掉 D1 相关配置
+            sed -i '/^\[\[d1_databases\]\]/,/^$/ s/^/# /' wrangler.toml
           fi
 
       - name: Build Next.js Application
@@ -51,10 +65,20 @@ jobs:
           BUILD_TARGET: cloudflare
           NODE_ENV: production
           NEXT_PUBLIC_TMDB_API_KEY: ${{ secrets.NEXT_PUBLIC_TMDB_API_KEY }}
+          NEXT_PUBLIC_STORAGE_TYPE: ${{ secrets.NEXT_PUBLIC_STORAGE_TYPE }}
+
+      - name: Verify build output
+        run: |
+          if [ ! -d ".open-next" ]; then
+            echo "❌ Build failed: .open-next directory not found"
+            exit 1
+          fi
+          echo "✓ Build output verified"
+          ls -la .open-next/
 
       - name: Publish to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy .open-next/assets --project-name=toolvision
+          command: pages deploy .open-next --project-name=toolvision --branch=${{ github.ref_name }}
