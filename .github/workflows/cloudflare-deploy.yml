@@ -20,16 +20,30 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v4
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-
-      - name: Install PNPM via NPM
-        run: npm install -g pnpm
+          cache: 'pnpm'
 
       - name: Install dependencies
-        run: pnpm install --no-frozen-lockfile
+        run: pnpm install --frozen-lockfile
+
+      - name: Configure D1 Database in wrangler.toml
+        run: |
+          STORAGE_TYPE="${{ secrets.NEXT_PUBLIC_STORAGE_TYPE }}"
+          if [ "$STORAGE_TYPE" != "d1" ]; then
+            sed -i '/^# D1 数据库绑定$/,/^database_id = .*$/d' wrangler.toml
+            sed -i '/^\[\[d1_databases\]\]$/,/^$/{ /^\[\[d1_databases\]\]$/d; /^binding = /d; /^database_name = /d; /^database_id = /d; }' wrangler.toml
+          elif [ -n "${{ secrets.D1_DATABASE_ID }}" ]; then
+            sed -i 's/REPLACE_WITH_YOUR_D1_DATABASE_ID/${{ secrets.D1_DATABASE_ID }}/g' wrangler.toml
+          else
+            echo "⚠️ Storage type is d1 but D1_DATABASE_ID secret not set"
+            exit 1
+          fi
 
       - name: Build Next.js Application
         run: pnpm build
@@ -37,9 +51,6 @@ jobs:
           BUILD_TARGET: cloudflare
           NODE_ENV: production
           NEXT_PUBLIC_TMDB_API_KEY: ${{ secrets.NEXT_PUBLIC_TMDB_API_KEY }}
-          NEXT_PUBLIC_STORAGE_TYPE: d1
-          USERNAME: admin
-          PASSWORD: your_secure_password
 
       - name: Publish to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
