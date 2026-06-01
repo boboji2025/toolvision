@@ -36,9 +36,7 @@ jobs:
         run: pnpm install --no-frozen-lockfile
 
       - name: Build Next.js Fullstack Application
-        run: |
-          cd apps/web
-          pnpm run build
+        run: pnpm run build
         env:
           BUILD_TARGET: cloudflare
           NODE_ENV: production
@@ -49,4 +47,4 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy apps/web/.open-next/assets --project-name=toolvision
+          command: pages deploy .open-next/assets --project-name=toolvision
