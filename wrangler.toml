@@ -1,21 +1,9 @@
-name = "moontv-plus"
-compatibility_date = "2024-09-23"
-compatibility_flags = ["nodejs_compat"]
-main = ".open-next/worker.js"
-minify = true
+name = "toolvision"
+compatibility_date = "2024-05-02"
+compatibility_flags = [ "nodejs_compat" ]
 
-# 静态资源配置
-# Cloudflare Workers Assets 用于服务静态文件
-[assets]
-directory = ".open-next/assets"
-binding = "ASSETS"
-
-# D1 数据库绑定
-[[d1_databases]]
-binding = "DB"
-database_name = "moontvplus"
-database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
-
-[vars]
-NODE_ENV = "production"
-BUILD_TARGET = "cloudflare"
+# 核心：显式指定本地打包输出目录
+# 如果你的项目使用的是 next-on-pages 架构，产物会在 .open-next 中；
+# 如果是一般的 Next.js 原生静态导出或 Cloudflare 混合构建，产物会在 .next 目录中。
+# 如果不确定，保持留空让 wrangler 在运行命令时自动猜测，或者配合你的框架使用：
+pages_build_output_dir = ".next"
