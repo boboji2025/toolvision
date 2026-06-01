@@ -36,10 +36,10 @@ jobs:
         run: pnpm install --no-frozen-lockfile
 
       - name: Build Next.js Fullstack Application
-        # 💡 核心修改：利用 pnpm 自动分析 package.json，如果存在 build:cloudflare 就执行它，否则执行标准构建
+        # 💡 核心修改：如果检测到内置命令，强行追加跳过版本检查的官方参数
         run: |
           if pnpm run | grep -q "build:cloudflare"; then
-            pnpm build:cloudflare
+            BUILD_TARGET=cloudflare pnpm gen:manifest && npx @opennextjs/cloudflare build --dangerouslyUseUnsupportedNextVersion
           else
             pnpm build
           fi
