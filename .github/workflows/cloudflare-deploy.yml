@@ -36,7 +36,9 @@ jobs:
         run: pnpm install --no-frozen-lockfile
 
       - name: Build Next.js Fullstack Application
-        run: pnpm --filter web build
+        run: |
+          cd apps/web
+          pnpm run build
         env:
           BUILD_TARGET: cloudflare
           NODE_ENV: production
