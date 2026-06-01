@@ -43,10 +43,8 @@ jobs:
           NEXT_PUBLIC_TMDB_API_KEY: ${{ secrets.NEXT_PUBLIC_TMDB_API_KEY }}
 
       - name: Publish to Cloudflare Pages
-        # 💡 核心在这里：利用 rm -rf 强制删掉 222MB 的 webpack 缓存文件夹，然后部署整个 .next 目录
-        run: |
-          rm -rf .next/cache
-          pnpm wrangler pages deploy .next --project-name=toolvision
+        # 💡 核心：全栈项目必须直接部署 .open-next 根目录，Wrangler 会自动识别里面的 Worker 函数和静态资源
+        run: pnpm wrangler pages deploy .open-next --project-name=toolvision
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
