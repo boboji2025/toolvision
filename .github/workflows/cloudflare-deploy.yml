@@ -29,7 +29,10 @@ jobs:
           node-version: '20'
           cache: 'pnpm'
 
-      - name: Install dependencies
+      - name: Force remove broken lockfile
+        run: rm -f pnpm-lock.yaml
+
+      - name: Install dependencies from scratch
         run: pnpm install --no-frozen-lockfile
 
       - name: Build Next.js Fullstack Application
